@@ -1,0 +1,9 @@
+<% @articles.each do |article| %>
+  <div class="article">
+    <h2><%= article.title %></h2>
+    <p><%= article.body %></p>
+    <!-- Include any other attributes you want to display -->
+  </div>
+<% end %>
+
+<%= paginate @articles %>

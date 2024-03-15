@@ -2,12 +2,10 @@
 
 one:
   user: one
-  user_type: User
   likeable: one
   likeable_type: Likeable
 
 two:
   user: two
-  user_type: User
   likeable: two
   likeable_type: Likeable

@@ -1,7 +1,7 @@
-# app/models/like.rb
 class Like < ApplicationRecord
   belongs_to :user
   belongs_to :likeable, polymorphic: true
 
-  enum like_status: { like: 0, dislike: 1 }
+  # This validation ensures that a user can only like a specific object once
+  validates :user_id, uniqueness: { scope: [:likeable_id, :likeable_type] }
 end

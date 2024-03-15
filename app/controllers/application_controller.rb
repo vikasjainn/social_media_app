@@ -1,9 +1,21 @@
-# app/controllers/application_controller.rb
-class ApplicationController < ActionController::Base
-    helper_method :current_user
-  
-    def current_user
-      @current_user ||= User.find(session[:user_id]) if session[:user_id]
+class ApplicationController < ActionController::API
+    attr_reader :current_user
+    
+    def not_found
+        render json: { error: 'not_found' }
     end
-  end
-  
+
+    # This method is called as a before action in other controllers to ensure that incoming requests are authorized.
+    def authorize_request
+        header = request.headers['Authorization']
+        header = header.split(' ').last if header
+        begin
+          @decoded = JsonWebToken.decode(header)
+          @current_user = User.find(@decoded[:user_id])
+        rescue ActiveRecord::RecordNotFound => e
+          render json: { errors: e.message }, status: :unauthorized
+        rescue JWT::DecodeError => e
+          render json: { errors: e.message }, status: :unauthorized
+        end
+    end
+end

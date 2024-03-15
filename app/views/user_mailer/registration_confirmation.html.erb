@@ -1,0 +1,11 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Registration Confirmation</title>
+</head>
+<body>
+  <h2>Hi <%= @user.name %>,</h2>
+  <p>Thanks for registering! To confirm your registration click the URL below.</p>
+  <a href="<%= confirm_email_url(@user.account_verification.confirm_token, host: 'localhost:3000') %>">Verify Account</a>
+</body>
+</html>

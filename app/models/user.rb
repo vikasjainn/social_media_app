@@ -1,28 +1,27 @@
-# app/models/user.rb
 class User < ApplicationRecord
+    include Blockable
+    include Friendable
+    include TokenManagement
+    include Shareable
+    include Validatable
+    include Creditable
+
+    after_create :create_account_verification
+
+    has_many :articles, dependent: :destroy
+    has_many :comments, dependent: :destroy
+    has_many :likes
+
+    has_one :account_verification, dependent: :destroy
+
+
+    # Rails built-in method that provides password encryption using bcrypt.
     has_secure_password
-    has_many :posts, as: :user, dependent: :destroy
-    has_many :comments, as: :user, dependent: :destroy
-    has_many :likes, as: :user, dependent: :destroy
-  end
-  
-  # app/models/post.rb
-  class Post < ApplicationRecord
-    belongs_to :user, polymorphic: true
-    has_many :comments, as: :post, dependent: :destroy
-    has_many :likes, as: :likeable, dependent: :destroy
-  end
-  
-  # app/models/comment.rb
-  class Comment < ApplicationRecord
-    belongs_to :user, polymorphic: true
-    belongs_to :post, polymorphic: true
-    has_many :likes, as: :likeable, dependent: :destroy
-  end
-  
-  # app/models/like.rb
-  class Like < ApplicationRecord
-    belongs_to :user, polymorphic: true
-    belongs_to :likeable, polymorphic: true
-  end
-  
+
+
+    private
+        def create_account_verification
+            AccountVerification.create(user: self)
+            UserMailer.registration_confirmation(self).deliver_now
+        end
+end

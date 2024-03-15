@@ -1,39 +1,46 @@
-# app/controllers/likes_controller.rb
 class LikesController < ApplicationController
-    before_action :require_login
-  
-    def create
-      @likeable = find_likeable
-      @like = @likeable.likes.build(user: current_user, like_status: :like)
-  
-      if @like.save
-        redirect_to root_path, notice: 'Like added!'
-      else
-        redirect_to root_path, alert: 'Error adding like.'
-      end
-    end
-  
-    def destroy
-      @likeable = find_likeable
-      @like = @likeable.likes.find_by(user: current_user)
-  
-      if @like.destroy
-        redirect_to root_path, notice: 'Like removed!'
-      else
-        redirect_to root_path, alert: 'Error removing like.'
-      end
-    end
-  
-    private
-  
-    def find_likeable
-      if params[:post_id]
-        Post.find(params[:post_id])
-      elsif params[:comment_id]
-        Comment.find(params[:comment_id])
-      else
-        # Handle the case when no valid likeable is found
-      end
-    end
+  before_action :authorize_request
+
+  def article_likes 
+    @article = Article.find_by(id: params[:article_id])
+    likes = @article.likes
+    render json: likes, status: :ok
   end
   
+  def comment_likes 
+    @comment = Comment.find_by(id: params[:comment_id])
+    likes = @comment.likes
+    render json: likes, status: :ok
+  end
+
+  def create
+    @likeable = find_likeable
+    @like = @likeable.likes.new(user_id: current_user.id)
+    if @like.save
+      render json: @likeable, status: :created
+    else
+      render json: @like.errors, status: :unprocessable_entity
+    end
+  end
+
+
+  def destroy
+    @like = Like.find_by(id: params[:id], user_id: current_user.id)
+    if @like
+      @like.destroy
+      head :no_content
+    else
+      render json: { error: "Like not found or you don't have permission to delete it" }, status: :not_found
+    end
+  end
+
+
+  private
+    def find_likeable
+      if params[:article_id]
+        Article.find(params[:article_id])
+      elsif params[:comment_id]
+        Comment.find(params[:comment_id])
+      end
+    end
+end
