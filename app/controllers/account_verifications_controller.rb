@@ -6,7 +6,7 @@ class AccountVerificationsController < ApplicationController
       account_verification.update(email_confirmed: true, confirm_token: nil)
       render json: { message: "Your email has been confirmed successfully!" }, status: :ok
     else
-      render json: { error: "Invalid Request" } status: :unprocessable_entity
+      render json: { error: "Invalid Request" }, status: :unprocessable_entity
     end
   end
 end
